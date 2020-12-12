@@ -1,0 +1,42 @@
+kind: pipeline
+name: Terraforming
+
+trigger:
+  branches:
+    - master
+  event:
+    - tag
+
+steps:
+  - name: terraform plan to create
+    image: governmentpaas/terraform:terraform-0.13.3
+    environment:
+      TF_DATA_DIR: /drone/src/.terraform
+    network_mode: host
+    when:
+      event: tag
+      ref: refs/tags/create*
+    commands:
+      - cd /drone/src/
+      - terraform init
+      - terraform plan -out tfapply
+  - name: terraform plan to destroy
+    image: governmentpaas/terraform:terraform-0.13.3
+    environment:
+      TF_DATA_DIR: /drone/src/.terraform
+    network_mode: host
+    when:
+      event: tag
+      ref: refs/tags/destroy*
+    commands:
+      - cd /drone/src/
+      - terraform init
+      - terraform plan -out tfapply -destroy
+  - name: terraform apply
+    image: governmentpaas/terraform:terraform-0.13.3
+    environment:
+      TF_DATA_DIR: /drone/src/.terraform
+    network_mode: host
+    commands:
+      - cd /drone/src/
+      - terraform apply -auto-approve tfapply
