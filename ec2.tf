@@ -3,6 +3,7 @@ resource "aws_instance" "free_instance" {
   instance_type = "t2.micro"
   vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
   associate_public_ip_address = true
+  subnet_id = aws_subnet.new_public_subnet.id
   key_name                    = aws_key_pair.ec2_key_pair.key_name
   tags = {
     Name = "free_instance"
